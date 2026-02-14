@@ -81,7 +81,7 @@ export const Buttons = ({
     const blob = new Blob([new Uint8Array(data)], { type: "application/pdf" });
     await savePdfToIndexedDB(blob, xfdfString);
     onSaved();
-    window.alert("保存しました");
+    window.alert(language === "ja" ? "保存しました" : "Saved");
   };
 
   const handleClearStorage = async () => {
