@@ -2,6 +2,9 @@
 
 A Next.js application that provides PDF viewing, annotation editing, and file management using [Apryse WebViewer](https://apryse.com/products/webviewer).
 
+## Preview URL
+https://experiment-webviewer-sdk.vercel.app/
+
 ## Tech Stack
 
 - **Next.js** 16 (App Router)
