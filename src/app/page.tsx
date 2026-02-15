@@ -106,23 +106,9 @@ export default function Home() {
     setLanguage((prev) => (prev === "en" ? "ja" : "en"));
   }, [instance, language]);
 
-  // instanceが準備できたらdocumentLoaded/Unloadedイベントを監視し、hasDocumentを更新する
-  // const monitorDocumentLoadedUnloaded = useCallback(
-  //   (inst: WebViewerInstance) => {
-  //     setInstance(inst);
-  //     const { documentViewer } = inst.Core;
-  //     documentViewer.addEventListener("documentLoaded", () =>
-  //       setHasDocument(true),
-  //     );
-  //     documentViewer.addEventListener("documentUnloaded", () =>
-  //       setHasDocument(false),
-  //     );
-  //   },
-  //   [],
-  // );
-
   return (
     <div className="flex h-screen flex-col">
+      {/* Hedaer */}
       <Buttons
         language={language}
         instance={instance}
@@ -135,6 +121,7 @@ export default function Home() {
         onClearedSaved={() => setHasSavedData(false)}
         onChangeLanguage={handleChangeLanguage}
       />
+      {/* WebViewer */}
       <div className="flex-1">
         <Viewer
           setInstance={setInstance}

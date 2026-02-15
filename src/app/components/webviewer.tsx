@@ -5,14 +5,12 @@ import { useCallback, useEffect, useRef } from "react";
 import { loadPdfFromIndexedDB } from "../lib/indexeddb";
 
 interface ViewerProps {
-  // monitorDocumentLoadedUnloaded?: (instance: WebViewerInstance) => void;
   language: string;
   setInstance: (instance: WebViewerInstance) => void;
   setHasDocument: (hasDocument: boolean) => void;
 }
 
 export default function Viewer({
-  // monitorDocumentLoadedUnloaded,
   setInstance,
   setHasDocument,
   language,
@@ -25,12 +23,26 @@ export default function Viewer({
     (inst: WebViewerInstance) => {
       setInstance(inst);
       const { documentViewer } = inst.Core;
-      documentViewer.addEventListener("documentLoaded", () =>
-        setHasDocument(true),
+
+      const handleDocumentLoaded = () => setHasDocument(true);
+      const handleDocumentUnloaded = () => setHasDocument(false);
+      documentViewer.addEventListener("documentLoaded", handleDocumentLoaded);
+      documentViewer.addEventListener(
+        "documentUnloaded",
+        handleDocumentUnloaded,
       );
-      documentViewer.addEventListener("documentUnloaded", () =>
-        setHasDocument(false),
-      );
+
+      // Cleanup function
+      return () => {
+        documentViewer.removeEventListener(
+          "documentLoaded",
+          handleDocumentLoaded,
+        );
+        documentViewer.removeEventListener(
+          "documentUnloaded",
+          handleDocumentUnloaded,
+        );
+      };
     },
     [setInstance, setHasDocument],
   );
@@ -38,6 +50,8 @@ export default function Viewer({
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
+
+    let cleanup: () => void;
 
     import("@pdftron/webviewer").then((module) => {
       const WebViewer = module.default;
@@ -50,7 +64,12 @@ export default function Viewer({
         viewer.current!,
       ).then(async (instance: WebViewerInstance) => {
         instance.UI.setLanguage(language);
-        monitorDocumentLoadedUnloaded?.(instance);
+        cleanup = monitorDocumentLoadedUnloaded(instance);
+
+        const UIEvents = instance.UI.Events;
+        instance.UI.addEventListener(UIEvents.LOAD_ERROR, function (err) {
+          window.alert(`An error has occurred: ${err}`);
+        });
 
         // IndexedDBに保存済みデータがあれば復元
         const saved = await loadPdfFromIndexedDB();
@@ -67,6 +86,11 @@ export default function Viewer({
             { once: true },
           );
         }
+
+        // Cleanup function
+        return () => {
+          cleanup?.();
+        };
       });
     });
   }, [monitorDocumentLoadedUnloaded, language]);
