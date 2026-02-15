@@ -27,36 +27,44 @@ export const DownloadDialogue = ({
       );
       return;
     }
-    // TODO:
-    const xfdfString = await annotationManager.exportAnnotations();
-    const data = await doc.getFileData({ xfdfString });
 
-    let downloadData: ArrayBuffer | Uint8Array = data;
+    try {
+      const xfdfString = await annotationManager.exportAnnotations();
+      const data = await doc.getFileData({ xfdfString });
 
-    if (password) {
-      await PDFNet.initialize();
-      const pdfDoc = await PDFNet.PDFDoc.createFromBuffer(data);
-      //   https://sdk.apryse.com/api/web/Core.PDFNet.SecurityHandler.html#toc0__anchor
-      const handler = await PDFNet.SecurityHandler.create(
-        PDFNet.SecurityHandler.AlgorithmType.e_AES_256,
-      );
-      await handler.changeUserPasswordUString(password);
+      let downloadData: ArrayBuffer | Uint8Array = data;
 
-      await pdfDoc.setSecurityHandler(handler);
-      downloadData = await pdfDoc.saveMemoryBuffer(
-        PDFNet.SDFDoc.SaveOptions.e_linearized,
+      if (password) {
+        await PDFNet.initialize();
+        const pdfDoc = await PDFNet.PDFDoc.createFromBuffer(data);
+        //   https://sdk.apryse.com/api/web/Core.PDFNet.SecurityHandler.html#toc0__anchor
+        const handler = await PDFNet.SecurityHandler.create(
+          PDFNet.SecurityHandler.AlgorithmType.e_AES_256,
+        );
+        await handler.changeUserPasswordUString(password);
+
+        await pdfDoc.setSecurityHandler(handler);
+        downloadData = await pdfDoc.saveMemoryBuffer(
+          PDFNet.SDFDoc.SaveOptions.e_compatibility,
+        );
+      }
+
+      const blob = new Blob([new Uint8Array(downloadData)], {
+        type: "application/pdf",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${title || "download"}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      window.alert(
+        language === "ja"
+          ? "PDFの処理中にエラーが発生しました。ファイルが破損している可能性があります。"
+          : "An error occurred while processing the PDF. The file may be corrupted.",
       );
     }
-
-    const blob = new Blob([new Uint8Array(downloadData)], {
-      type: "application/pdf",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${title || "download"}.pdf`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   return (
