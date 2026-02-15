@@ -9,6 +9,7 @@ import {
   savePdfToIndexedDB,
   clearIndexedDB,
 } from "./lib/indexeddb";
+import { Dialogue } from "./components/dialogue";
 
 export default function Home() {
   const [instance, setInstance] = useState<WebViewerInstance | null>(null);
@@ -18,6 +19,7 @@ export default function Home() {
   const [language, setLanguage] = useState("en");
 
   const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [isDialogueOpen, setIsDialogueOpen] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout>(undefined);
 
   // 初回マウント時にIndexedDBとlocalStorageから復元
@@ -120,6 +122,7 @@ export default function Home() {
         onSaved={() => setHasSavedData(true)}
         onClearedSaved={() => setHasSavedData(false)}
         onChangeLanguage={handleChangeLanguage}
+        onOpenDialogue={() => setIsDialogueOpen(true)}
       />
       {/* WebViewer */}
       <div className="flex-1">
@@ -129,6 +132,14 @@ export default function Home() {
           language={language}
         />
       </div>
+
+      {/* Dialogue */}
+      <Dialogue
+        language={language}
+        isOpen={isDialogueOpen}
+        onClose={() => setIsDialogueOpen(false)}
+        instance={instance}
+      />
     </div>
   );
 }

@@ -58,6 +58,7 @@ export default function Viewer({
       WebViewer(
         {
           path: "/lib/webviewer",
+          fullAPI: true,
           licenseKey: process.env.NEXT_PUBLIC_PDFTRON_LICENSE_KEY,
           defaultLanguage: language,
         },

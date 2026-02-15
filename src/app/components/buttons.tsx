@@ -15,6 +15,7 @@ interface ButtonsProps {
   onSaved: () => void;
   onClearedSaved: () => void;
   onChangeLanguage: () => void;
+  onOpenDialogue: () => void;
 }
 
 export const Buttons = ({
@@ -28,6 +29,7 @@ export const Buttons = ({
   onSaved,
   onClearedSaved,
   onChangeLanguage,
+  onOpenDialogue,
 }: ButtonsProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -38,31 +40,6 @@ export const Buttons = ({
     if (!file || !instance) return;
     instance.UI.loadDocument(file);
     e.target.value = "";
-    setLoading(false);
-  };
-
-  const handleDownload = async () => {
-    setLoading(true);
-    if (!instance) return;
-    const { documentViewer, annotationManager } = instance.Core;
-    const doc = documentViewer.getDocument();
-    if (!doc) {
-      window.alert("PDF is not loaded");
-      setLoading(false);
-      return;
-    }
-    // TODO:いっこずつ理解する
-    const xfdfString = await annotationManager.exportAnnotations();
-    console.log("xdf", xfdfString);
-    const data = await doc.getFileData({ xfdfString });
-    const arr = new Uint8Array(data);
-    const blob = new Blob([arr], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "edited.pdf";
-    a.click();
-    URL.revokeObjectURL(url);
     setLoading(false);
   };
 
@@ -93,6 +70,7 @@ export const Buttons = ({
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex justify-between">
+        {/* Upload PDF */}
         <div className="flex gap-4">
           <input
             type="file"
@@ -111,9 +89,11 @@ export const Buttons = ({
                 ? "アップロード中..."
                 : "Uploading..."
               : language === "ja"
-                ? "PDFをアップロード"
-                : "Upload PDF"}
+                ? "アップロード"
+                : "Upload"}
           </button>
+
+          {/* Clear Annotations */}
           <button
             onClick={() => {
               if (!instance) return;
@@ -125,15 +105,19 @@ export const Buttons = ({
             disabled={!hasDocument}
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
           >
-            {language === "ja" ? "注釈をクリア" : "Clear annotations"}
+            {language === "ja" ? "注釈をクリア" : "Clear Annotations"}
           </button>
+
+          {/* Download PDF */}
           <button
-            onClick={handleDownload}
+            onClick={onOpenDialogue}
             disabled={!hasDocument}
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
           >
             {loading ? "Downloading..." : "Download"}
           </button>
+
+          {/* Delete PDF */}
           <button
             onClick={() => {
               if (!instance) return;
@@ -142,10 +126,11 @@ export const Buttons = ({
             disabled={!hasDocument}
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
           >
-            {language === "ja" ? "PDFを削除" : "Delete PDF"}
+            {language === "ja" ? "削除" : "Delete"}
           </button>
         </div>
 
+        {/* Language Toggle */}
         <div className="flex gap-4">
           <button
             onClick={onChangeLanguage}
@@ -191,7 +176,7 @@ export const Buttons = ({
               disabled={!hasSavedData}
               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
             >
-              {language === "ja" ? "保存データを削除" : "Clear saved data"}
+              {language === "ja" ? "保存データを削除" : "Clear Saved Data"}
             </button>
           </>
         )}
