@@ -45,7 +45,7 @@ export const DownloadDialogue = ({
 
         await pdfDoc.setSecurityHandler(handler);
         downloadData = await pdfDoc.saveMemoryBuffer(
-          PDFNet.SDFDoc.SaveOptions.e_compatibility,
+          PDFNet.SDFDoc.SaveOptions.e_remove_unused,
         );
       }
 
