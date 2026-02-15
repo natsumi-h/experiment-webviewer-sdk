@@ -3,7 +3,7 @@
 import { WebViewerInstance } from "@pdftron/webviewer";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Viewer from "./components/webviewer";
-import { Buttons } from "./components/button";
+import { Buttons } from "./components/buttons";
 import {
   loadPdfFromIndexedDB,
   savePdfToIndexedDB,
@@ -26,19 +26,6 @@ export default function Home() {
       setHasSavedData(data !== null);
       if (localStorage.getItem("autoSave") === "true") setAutoSave(true);
     });
-  }, []);
-
-  // TODO:
-  // instanceが準備できたらdocumentLoaded/Unloadedイベントを監視
-  const handleInstanceReady = useCallback((inst: WebViewerInstance) => {
-    setInstance(inst);
-    const { documentViewer } = inst.Core;
-    documentViewer.addEventListener("documentLoaded", () =>
-      setHasDocument(true),
-    );
-    documentViewer.addEventListener("documentUnloaded", () =>
-      setHasDocument(false),
-    );
   }, []);
 
   // AutoSave: annotationChanged + documentLoaded を監視
@@ -119,6 +106,21 @@ export default function Home() {
     setLanguage((prev) => (prev === "en" ? "ja" : "en"));
   }, [instance, language]);
 
+  // instanceが準備できたらdocumentLoaded/Unloadedイベントを監視し、hasDocumentを更新する
+  // const monitorDocumentLoadedUnloaded = useCallback(
+  //   (inst: WebViewerInstance) => {
+  //     setInstance(inst);
+  //     const { documentViewer } = inst.Core;
+  //     documentViewer.addEventListener("documentLoaded", () =>
+  //       setHasDocument(true),
+  //     );
+  //     documentViewer.addEventListener("documentUnloaded", () =>
+  //       setHasDocument(false),
+  //     );
+  //   },
+  //   [],
+  // );
+
   return (
     <div className="flex h-screen flex-col">
       <Buttons
@@ -134,7 +136,11 @@ export default function Home() {
         onChangeLanguage={handleChangeLanguage}
       />
       <div className="flex-1">
-        <Viewer onInstanceReady={handleInstanceReady} />
+        <Viewer
+          setInstance={setInstance}
+          setHasDocument={setHasDocument}
+          language={language}
+        />
       </div>
     </div>
   );

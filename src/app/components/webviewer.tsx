@@ -1,16 +1,39 @@
 "use client";
 
 import { WebViewerInstance } from "@pdftron/webviewer";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { loadPdfFromIndexedDB } from "../lib/indexeddb";
 
 interface ViewerProps {
-  onInstanceReady?: (instance: WebViewerInstance) => void;
+  // monitorDocumentLoadedUnloaded?: (instance: WebViewerInstance) => void;
+  language: string;
+  setInstance: (instance: WebViewerInstance) => void;
+  setHasDocument: (hasDocument: boolean) => void;
 }
 
-export default function Viewer({ onInstanceReady }: ViewerProps) {
+export default function Viewer({
+  // monitorDocumentLoadedUnloaded,
+  setInstance,
+  setHasDocument,
+  language,
+}: ViewerProps) {
   const viewer = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
+
+  // instanceが準備できたらdocumentLoaded/Unloadedイベントを監視し、hasDocumentを更新する
+  const monitorDocumentLoadedUnloaded = useCallback(
+    (inst: WebViewerInstance) => {
+      setInstance(inst);
+      const { documentViewer } = inst.Core;
+      documentViewer.addEventListener("documentLoaded", () =>
+        setHasDocument(true),
+      );
+      documentViewer.addEventListener("documentUnloaded", () =>
+        setHasDocument(false),
+      );
+    },
+    [setInstance, setHasDocument],
+  );
 
   useEffect(() => {
     if (initialized.current) return;
@@ -22,12 +45,12 @@ export default function Viewer({ onInstanceReady }: ViewerProps) {
         {
           path: "/lib/webviewer",
           licenseKey: process.env.NEXT_PUBLIC_PDFTRON_LICENSE_KEY,
-          defaultLanguage: "ja",
+          defaultLanguage: language,
         },
         viewer.current!,
       ).then(async (instance: WebViewerInstance) => {
-        instance.UI.setLanguage("en");
-        onInstanceReady?.(instance);
+        instance.UI.setLanguage(language);
+        monitorDocumentLoadedUnloaded?.(instance);
 
         // IndexedDBに保存済みデータがあれば復元
         const saved = await loadPdfFromIndexedDB();
@@ -46,7 +69,7 @@ export default function Viewer({ onInstanceReady }: ViewerProps) {
         }
       });
     });
-  }, [onInstanceReady]);
+  }, [monitorDocumentLoadedUnloaded, language]);
 
   return <div className="h-full w-full" ref={viewer}></div>;
 }

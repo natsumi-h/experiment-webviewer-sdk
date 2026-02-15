@@ -104,7 +104,7 @@ export const Buttons = ({
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             {loading
               ? language === "ja"
@@ -123,14 +123,14 @@ export const Buttons = ({
               );
             }}
             disabled={!hasDocument}
-            className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-50"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
           >
             {language === "ja" ? "注釈をクリア" : "Clear annotations"}
           </button>
           <button
             onClick={handleDownload}
             disabled={!hasDocument}
-            className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
           >
             {loading ? "Downloading..." : "Download"}
           </button>
@@ -140,7 +140,7 @@ export const Buttons = ({
               instance.Core.documentViewer.closeDocument();
             }}
             disabled={!hasDocument}
-            className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-700 disabled:opacity-50"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
           >
             {language === "ja" ? "PDFを削除" : "Delete PDF"}
           </button>
@@ -149,26 +149,27 @@ export const Buttons = ({
         <div className="flex gap-4">
           <button
             onClick={onChangeLanguage}
-            className="rounded bg-orange-600 px-4 py-2 text-white hover:bg-orange-700 disabled:opacity-50"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             EN / JA
           </button>
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 items-center">
         {/* AutoSave トグル */}
-        <button
-          onClick={onToggleAutoSave}
-          className={`rounded px-4 py-2 text-white ${
-            autoSave
-              ? "bg-purple-600 hover:bg-purple-700"
-              : "bg-purple-400 hover:bg-purple-500"
-          }`}
-        >
-          {language === "ja" ? "自動保存" : "AutoSave"}:{" "}
-          {autoSave ? "ON" : "OFF"}
-        </button>
+        <label className="inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            className="sr-only peer"
+            checked={autoSave}
+            onChange={onToggleAutoSave}
+          />
+          <div className="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+          <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+            {language === "ja" ? "自動保存" : "AutoSave"}
+          </span>
+        </label>
         {isAutoSaving && (
           <span className="flex items-center text-sm text-purple-400">
             {language === "ja" ? "自動保存中..." : "Autosaving..."}
@@ -181,14 +182,14 @@ export const Buttons = ({
             <button
               onClick={handleSave}
               disabled={!hasDocument}
-              className="rounded bg-yellow-600 px-4 py-2 text-white hover:bg-yellow-700 disabled:opacity-50"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
             >
               {language === "ja" ? "保存" : "Save"}
             </button>
             <button
               onClick={handleClearStorage}
               disabled={!hasSavedData}
-              className="rounded bg-orange-600 px-4 py-2 text-white hover:bg-orange-700 disabled:opacity-50"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
             >
               {language === "ja" ? "保存データを削除" : "Clear saved data"}
             </button>
