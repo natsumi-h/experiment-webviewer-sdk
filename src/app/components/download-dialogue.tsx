@@ -3,7 +3,7 @@
 import { WebViewerInstance } from "@pdftron/webviewer";
 import { useState } from "react";
 
-export const Dialogue = ({
+export const DownloadDialogue = ({
   isOpen,
   onClose,
   language,

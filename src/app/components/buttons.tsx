@@ -1,7 +1,6 @@
 "use client";
 
 import { WebViewerInstance } from "@pdftron/webviewer";
-import { useRef, useState } from "react";
 import { savePdfToIndexedDB, clearIndexedDB } from "../lib/indexeddb";
 
 interface ButtonsProps {
@@ -15,7 +14,9 @@ interface ButtonsProps {
   onSaved: () => void;
   onClearedSaved: () => void;
   onChangeLanguage: () => void;
-  onOpenDialogue: () => void;
+  onOpenDownloadDialogue: () => void;
+  onOpenUploadDialogue: () => void;
+  isLoading: boolean;
 }
 
 export const Buttons = ({
@@ -29,20 +30,10 @@ export const Buttons = ({
   onSaved,
   onClearedSaved,
   onChangeLanguage,
-  onOpenDialogue,
+  onOpenDownloadDialogue,
+  onOpenUploadDialogue,
+  isLoading,
 }: ButtonsProps) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoading(true);
-    const file = e.target.files?.[0];
-    if (!file || !instance) return;
-    instance.UI.loadDocument(file);
-    e.target.value = "";
-    setLoading(false);
-  };
-
   const handleSave = async () => {
     if (!instance) return;
     const { documentViewer, annotationManager } = instance.Core;
@@ -64,7 +55,9 @@ export const Buttons = ({
   const handleClearStorage = async () => {
     await clearIndexedDB();
     onClearedSaved();
-    window.alert("保存データを削除しました");
+    window.alert(
+      language === "ja" ? "保存データを削除しました" : "Saved data cleared",
+    );
   };
 
   return (
@@ -72,19 +65,11 @@ export const Buttons = ({
       <div className="flex justify-between">
         {/* Upload PDF */}
         <div className="flex gap-4">
-          <input
-            type="file"
-            // TODO:
-            accept=".pdf"
-            ref={fileInputRef}
-            onChange={handleUpload}
-            className="hidden"
-          />
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={onOpenUploadDialogue}
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
-            {loading
+            {isLoading
               ? language === "ja"
                 ? "アップロード中..."
                 : "Uploading..."
@@ -110,11 +95,17 @@ export const Buttons = ({
 
           {/* Download PDF */}
           <button
-            onClick={onOpenDialogue}
+            onClick={onOpenDownloadDialogue}
             disabled={!hasDocument}
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
           >
-            {loading ? "Downloading..." : "Download"}
+            {isLoading
+              ? language === "ja"
+                ? "ダウンロード中..."
+                : "Downloading..."
+              : language === "ja"
+                ? "ダウンロード"
+                : "Download"}
           </button>
 
           {/* Delete PDF */}

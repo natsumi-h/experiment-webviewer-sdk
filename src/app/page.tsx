@@ -9,7 +9,8 @@ import {
   savePdfToIndexedDB,
   clearIndexedDB,
 } from "./lib/indexeddb";
-import { Dialogue } from "./components/dialogue";
+import { DownloadDialogue } from "./components/download-dialogue";
+import { UploadDialogue } from "./components/upload-dialogue";
 
 export default function Home() {
   const [instance, setInstance] = useState<WebViewerInstance | null>(null);
@@ -17,9 +18,11 @@ export default function Home() {
   const [hasSavedData, setHasSavedData] = useState(false);
   const [autoSave, setAutoSave] = useState(false);
   const [language, setLanguage] = useState("en");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [isAutoSaving, setIsAutoSaving] = useState(false);
-  const [isDialogueOpen, setIsDialogueOpen] = useState(false);
+  const [isDownloadDialogueOpen, setIsDownloadDialogueOpen] = useState(false);
+  const [isUploadDialogueOpen, setIsUploadDialogueOpen] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout>(undefined);
 
   // 初回マウント時にIndexedDBとlocalStorageから復元
@@ -122,7 +125,9 @@ export default function Home() {
         onSaved={() => setHasSavedData(true)}
         onClearedSaved={() => setHasSavedData(false)}
         onChangeLanguage={handleChangeLanguage}
-        onOpenDialogue={() => setIsDialogueOpen(true)}
+        onOpenDownloadDialogue={() => setIsDownloadDialogueOpen(true)}
+        onOpenUploadDialogue={() => setIsUploadDialogueOpen(true)}
+        isLoading={isLoading}
       />
       {/* WebViewer */}
       <div className="flex-1">
@@ -134,11 +139,18 @@ export default function Home() {
       </div>
 
       {/* Dialogue */}
-      <Dialogue
+      <DownloadDialogue
         language={language}
-        isOpen={isDialogueOpen}
-        onClose={() => setIsDialogueOpen(false)}
+        isOpen={isDownloadDialogueOpen}
+        onClose={() => setIsDownloadDialogueOpen(false)}
         instance={instance}
+      />
+      <UploadDialogue
+        language={language}
+        isOpen={isUploadDialogueOpen}
+        onClose={() => setIsUploadDialogueOpen(false)}
+        instance={instance}
+        setIsLoading={setIsLoading}
       />
     </div>
   );
