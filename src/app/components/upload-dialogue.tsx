@@ -19,8 +19,19 @@ export const UploadDialogue = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  const MAX_FILE_SIZE_NUM = 30;
+  const MAX_FILE_SIZE_MB = MAX_FILE_SIZE_NUM * 1024 * 1024; // 30MB
+
   const loadFile = (file: File) => {
     if (!instance) return;
+    if (file.size > MAX_FILE_SIZE_MB) {
+      window.alert(
+        language === "ja"
+          ? `ファイルサイズが${MAX_FILE_SIZE_NUM}MBの上限を超えています。`
+          : `File size exceeds ${MAX_FILE_SIZE_NUM}MB limit.`,
+      );
+      return;
+    }
     if (file.type !== "application/pdf") return;
     instance.UI.loadDocument(file);
     onClose();
@@ -134,8 +145,12 @@ export const UploadDialogue = ({
                           : "Drag & drop here, or click the button below"}
                     </p>
                     <p className="text-xs mb-4">
-                      Max. File Size:{" "}
-                      <span className="font-semibold">30MB</span>
+                      {language === "ja"
+                        ? "最大ファイルサイズ:"
+                        : "Max. File Size:"}
+                      <span className="font-semibold">
+                        {MAX_FILE_SIZE_NUM}MB
+                      </span>
                     </p>
                     <button
                       type="button"
@@ -156,7 +171,7 @@ export const UploadDialogue = ({
                           d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
                         />
                       </svg>
-                      Browse file
+                      {language === "ja" ? "ファイルを選択" : "Browse file"}
                     </button>
                   </div>
                 </div>
