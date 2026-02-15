@@ -17,8 +17,8 @@ https://experiment-webviewer-sdk.vercel.app/
 
 ### PDF Operations
 
-- **Upload PDF** — Select a local PDF file and load it into WebViewer
-- **Download** — Export the PDF with annotations embedded as a file download
+- **Upload PDF** — Upload a PDF via file picker or drag & drop
+- **Download** — Export the PDF with a custom title and optional password protection (AES-256)
 - **Delete PDF** — Close the currently loaded document
 
 ### Annotation Editing
@@ -49,29 +49,31 @@ https://experiment-webviewer-sdk.vercel.app/
 
 ```
 src/app/
-├── page.tsx                    # Main page — state management and event wiring
+├── page.tsx                        # Main page — state management and event wiring
 ├── components/
-│   ├── webviewer.tsx           # WebViewer initialization and IndexedDB restore
-│   └── button.tsx              # Toolbar buttons (upload, download, save, etc.)
+│   ├── webviewer.tsx               # WebViewer initialization and IndexedDB restore
+│   ├── buttons.tsx                 # Toolbar buttons (upload, download, save, etc.)
+│   ├── upload-dialogue.tsx         # Upload modal with drag & drop support
+│   └── download-dialogue.tsx       # Download modal with title and password settings
 └── lib/
-    └── indexeddb.ts            # IndexedDB helper functions
+    └── indexeddb.ts                # IndexedDB helper functions
 ```
 
 ### Data Flow
 
 ```
-Upload → WebViewer (in-memory)
-                ↓
-        Edit annotations
-                ↓
-    ┌───────────┴───────────┐
-    ↓                       ↓
-  Save / AutoSave       Download
-    ↓                       ↓
-  IndexedDB             PDF file
-  (PDF + XFDF)         (annotations embedded)
-    ↓
-  Page reload → Restore from IndexedDB
+Upload (file picker / drag & drop) → WebViewer (in-memory)
+                                          ↓
+                                  Edit annotations
+                                          ↓
+                              ┌───────────┴───────────┐
+                              ↓                       ↓
+                        Save / AutoSave           Download
+                              ↓                       ↓
+                          IndexedDB             PDF file
+                         (PDF + XFDF)      (annotations embedded,
+                              ↓             optional password protection)
+                        Page reload → Restore from IndexedDB
 ```
 
 ### Storage
